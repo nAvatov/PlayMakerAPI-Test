@@ -37,35 +37,24 @@ public class Test : MonoBehaviour {
             new FsmEvent("UI CLICK"),
             new FsmEvent("FINISHED")
         };
-
-        _pmFsm.Fsm.InitEvents();
         
         HutongGames.PlayMaker.Actions.UiButtonOnClickEvent clickAction = new HutongGames.PlayMaker.Actions.UiButtonOnClickEvent();
-        clickAction.sendEvent = _pmFsm.Fsm.Events[0];
-        clickAction.eventTarget = FsmEventTarget.Self;
-        FsmOwnerDefault newDefaultOwner = new FsmOwnerDefault();
-        newDefaultOwner.GameObject = _button.gameObject;
-        clickAction.gameObject = newDefaultOwner;
-
         HutongGames.PlayMaker.Actions.Wait waitAction = new HutongGames.PlayMaker.Actions.Wait();
-        waitAction.time = 3f;
-        waitAction.finishEvent = _pmFsm.Fsm.Events[1];
-
         HutongGames.PlayMaker.Actions.DebugLog logAction = new HutongGames.PlayMaker.Actions.DebugLog();
-        logAction.text = "Button Clicked!";
-        logAction.sendToUnityLog = true;
+
+        CreateActions(clickAction, waitAction, logAction);
 
         SetupStates(states, clickAction, waitAction, logAction);
 
         FillStatesList(states);
         ReplaceStates();
-
-        _pmFsm.Fsm.UpdateStateChanges();
-        _pmFsm.Fsm.InitStates();
     }
 
 
-
+    /// <summary>
+    /// Reinitializing states array of Fsm component array and setting starting state
+    /// </summary>
+    /// <param name="states"></param>
     private void FillStatesList(FsmState[] states) {
         _pmFsm.Fsm.States = null;
 
@@ -75,12 +64,9 @@ public class Test : MonoBehaviour {
         _pmFsm.SetState(_pmFsm.Fsm.StartState);
     }
 
-    private void SetTransition(FsmState state, FsmTransition transition) {
-        state.Transitions = new FsmTransition[] {
-            transition
-        };
-    }
-
+    /// <summary>
+    /// Replacing spawned states in FSM canvas field
+    /// </summary>
     private void ReplaceStates() {
         int placeCoord = 0;
         foreach(FsmState state in _pmFsm.Fsm.States) {
@@ -89,6 +75,13 @@ public class Test : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// Setup satets actions and transitions
+    /// </summary>
+    /// <param name="states"></param>
+    /// <param name="clickAction"></param>
+    /// <param name="waitAction"></param>
+    /// <param name="logAction"></param>
     private void SetupStates(FsmState[] states, HutongGames.PlayMaker.Actions.UiButtonOnClickEvent clickAction, HutongGames.PlayMaker.Actions.Wait waitAction, HutongGames.PlayMaker.Actions.DebugLog logAction) {
         states[0].Actions = new FsmStateAction[] { clickAction };
         states[0].Transitions = new FsmTransition[] { CreateTransition(states[1], _pmFsm.Fsm.Events[0]) };
@@ -97,5 +90,25 @@ public class Test : MonoBehaviour {
         states[1].Transitions = new FsmTransition[] { CreateTransition(states[2], _pmFsm.Fsm.Events[1]) };
 
         states[2].Actions = new FsmStateAction[] { logAction };
+    }
+
+    /// <summary>
+    /// Creates custom actions for current task
+    /// </summary>
+    /// <param name="clickAction"></param>
+    /// <param name="waitAction"></param>
+    /// <param name="logAction"></param>
+    private void CreateActions(HutongGames.PlayMaker.Actions.UiButtonOnClickEvent clickAction, HutongGames.PlayMaker.Actions.Wait waitAction, HutongGames.PlayMaker.Actions.DebugLog logAction) {
+        clickAction.sendEvent = _pmFsm.Fsm.Events[0];
+        clickAction.eventTarget = FsmEventTarget.Self;
+        FsmOwnerDefault newDefaultOwner = new FsmOwnerDefault();
+        newDefaultOwner.GameObject = _button.gameObject;
+        clickAction.gameObject = newDefaultOwner;
+
+        waitAction.time = 3f;
+        waitAction.finishEvent = _pmFsm.Fsm.Events[1];
+
+        logAction.text = "Button Clicked!";
+        logAction.sendToUnityLog = true;
     }
 }
